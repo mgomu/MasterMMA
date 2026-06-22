@@ -4,6 +4,7 @@ import { miembros } from "@/db/schema";
 import { membershipStatus } from "@/lib/membership";
 import type { MemberRow } from "@/app/(app)/actions/members";
 import { MemberTable } from "@/components/member-table";
+import { StatusCounters } from "@/components/status-counters";
 
 export default async function DashboardPage() {
   const rows = await db
@@ -32,6 +33,7 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
         Personas
       </h1>
+      <StatusCounters members={members} />
       <MemberTable members={members} />
     </div>
   );
