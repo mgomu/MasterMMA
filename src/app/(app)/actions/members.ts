@@ -6,8 +6,23 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { miembros } from "@/db/schema";
 import { memberSchema } from "@/lib/validators";
+import type { MembershipStatus } from "@/lib/membership";
 
 export type MemberActionState = { ok: boolean; error?: string };
+
+/** Fila de miembro enriquecida con su estado, tal como la consume la UI. */
+export type MemberRow = {
+  id: string;
+  nombre: string;
+  correo: string;
+  telefono: string | null;
+  documento: string | null;
+  contactoEmergencia: string | null;
+  fechaNacimiento: string | null;
+  fechaInicio: string;
+  fechaVencimiento: string;
+  estado: MembershipStatus;
+};
 
 /** Fecha de hoy como `YYYY-MM-DD` (las columnas `date` se guardan como string). */
 function todayISO(): string {

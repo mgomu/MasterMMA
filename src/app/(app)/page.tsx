@@ -1,0 +1,38 @@
+import { desc } from "drizzle-orm";
+import { db } from "@/db";
+import { miembros } from "@/db/schema";
+import { membershipStatus } from "@/lib/membership";
+import type { MemberRow } from "@/app/(app)/actions/members";
+import { MemberTable } from "@/components/member-table";
+
+export default async function DashboardPage() {
+  const rows = await db
+    .select()
+    .from(miembros)
+    .orderBy(desc(miembros.creadoEn));
+
+  const today = new Date();
+  const members: MemberRow[] = rows.map((m) => ({
+    id: m.id,
+    nombre: m.nombre,
+    correo: m.correo,
+    telefono: m.telefono,
+    documento: m.documento,
+    contactoEmergencia: m.contactoEmergencia,
+    fechaNacimiento: m.fechaNacimiento,
+    fechaInicio: m.fechaInicio,
+    fechaVencimiento: m.fechaVencimiento,
+    // El vencimiento es un `date` puro; lo parseamos como mediodía UTC para que
+    // la comparación de días de calendario no se desfase por zona horaria.
+    estado: membershipStatus(new Date(`${m.fechaVencimiento}T12:00:00Z`), today),
+  }));
+
+  return (
+    <div className="flex flex-col gap-6">
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+        Personas
+      </h1>
+      <MemberTable members={members} />
+    </div>
+  );
+}
