@@ -11,3 +11,17 @@ export const memberSchema = z.object({
 });
 
 export type MemberInput = z.infer<typeof memberSchema>;
+
+export const paymentSchema = z.object({
+  fechaPago: z.string().min(1, "Fecha de pago obligatoria"),
+  monto: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0),
+      "Monto inválido",
+    ),
+});
+
+export type PaymentInput = z.infer<typeof paymentSchema>;

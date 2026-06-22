@@ -8,6 +8,17 @@ import { users } from "@/db/schema";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  callbacks: {
+    // Por defecto Auth.js solo expone name/email/image en la sesión. Copiamos
+    // el id del usuario (lo lleva `token.sub`, fijado por el flujo JWT con el
+    // valor que devuelve `authorize`) para poder registrar quién cobró un pago.
+    session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+  },
   providers: [
     Credentials({
       credentials: { email: {}, password: {} },
