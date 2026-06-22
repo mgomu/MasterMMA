@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { DollarSign, Pencil, Trash2 } from "lucide-react";
 import type { MemberRow } from "@/app/(app)/actions/members";
-import type { MembershipStatus } from "@/lib/membership";
+import { STATUS_META, formatDate } from "@/lib/status-meta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,30 +18,7 @@ import {
 } from "@/components/ui/table";
 import { MemberForm } from "@/components/member-form";
 import { DeleteMemberDialog } from "@/components/delete-member-dialog";
-
-const STATUS_META: Record<
-  MembershipStatus,
-  { label: string; className: string }
-> = {
-  activo: {
-    label: "Activo",
-    className: "bg-green-100 text-green-700",
-  },
-  por_vencer: {
-    label: "Por vencer",
-    className: "bg-amber-100 text-amber-700",
-  },
-  vencido: {
-    label: "Vencido",
-    className: "bg-red-100 text-red-700",
-  },
-};
-
-function formatDate(iso: string): string {
-  // `iso` viene como `YYYY-MM-DD`; lo mostramos como `DD/MM/YYYY` sin tocar zona.
-  const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y}`;
-}
+import { PaymentDialog } from "@/components/payment-dialog";
 
 export function MemberTable({ members }: { members: MemberRow[] }) {
   const [query, setQuery] = useState("");
@@ -92,7 +70,14 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
                 const meta = STATUS_META[m.estado];
                 return (
                   <TableRow key={m.id}>
-                    <TableCell className="font-medium">{m.nombre}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/miembros/${m.id}`}
+                        className="hover:underline"
+                      >
+                        {m.nombre}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-zinc-600">{m.correo}</TableCell>
                     <TableCell>{formatDate(m.fechaVencimiento)}</TableCell>
                     <TableCell>
@@ -100,6 +85,19 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
+                        <PaymentDialog
+                          miembroId={m.id}
+                          miembroNombre={m.nombre}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Registrar pago"
+                            >
+                              <DollarSign />
+                            </Button>
+                          }
+                        />
                         <MemberForm
                           member={m}
                           trigger={
