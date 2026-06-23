@@ -18,6 +18,24 @@ function formatDate(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
+function buildTransporter() {
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM;
+  if (!user || !pass || !from) {
+    return { error: "Faltan SMTP_USER, SMTP_PASS o SMTP_FROM." } as const;
+  }
+  return {
+    transporter: nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+    }),
+    from,
+  } as const;
+}
+
 // No lanza nunca: un fallo de envío devuelve { ok:false } para que la corrida
 // del cron continúe con el resto de destinatarios (PRD §6.5).
 export async function sendReminderEmail({
@@ -26,12 +44,8 @@ export async function sendReminderEmail({
   tipo,
   fechaVencimiento,
 }: SendReminderArgs): Promise<SendResult> {
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const from = process.env.SMTP_FROM;
-  if (!user || !pass || !from) {
-    return { ok: false, error: "Faltan SMTP_USER, SMTP_PASS o SMTP_FROM." };
-  }
+  const built = buildTransporter();
+  if ("error" in built) return { ok: false, error: built.error };
 
   const dias = DIAS[tipo];
   const fecha = formatDate(fechaVencimiento);
@@ -49,13 +63,53 @@ Por favor realiza el pago para renovar tu membresía y no perder el acceso a las
 `;
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: { user, pass },
+    await built.transporter.sendMail({ from: built.from, to, subject, text });
+    return { ok: true };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "Error al enviar el correo.",
+    };
+  }
+}
+
+// Copia al admin (gimnasio): avisa que un miembro está por vencer. Best-effort
+// vía `ADMIN_EMAIL`; si no está configurado, no hace nada.
+export type SendAdminAlertArgs = {
+  adminEmail: string;
+  nombreMiembro: string;
+  tipo: ReminderType;
+  fechaVencimiento: string;
+};
+
+export async function sendAdminAlertEmail({
+  adminEmail,
+  nombreMiembro,
+  tipo,
+  fechaVencimiento,
+}: SendAdminAlertArgs): Promise<SendResult> {
+  const built = buildTransporter();
+  if ("error" in built) return { ok: false, error: built.error };
+
+  const dias = DIAS[tipo];
+  const fecha = formatDate(fechaVencimiento);
+  const subject = `Aviso: membresía de ${nombreMiembro} por vencer`;
+  const cuando = dias === 1 ? "mañana" : `en ${dias} días`;
+  const text = `Hola,
+
+Te avisamos que la membresía de ${nombreMiembro} vence el ${fecha} (${cuando}).
+
+Si corresponde, comunícate con el miembro para gestionar la renovación.
+
+`;
+
+  try {
+    await built.transporter.sendMail({
+      from: built.from,
+      to: adminEmail,
+      subject,
+      text,
     });
-    await transporter.sendMail({ from, to, subject, text });
     return { ok: true };
   } catch (e) {
     return {

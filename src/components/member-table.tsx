@@ -140,10 +140,10 @@ export function MemberTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[280px]">Nombre</TableHead>
+                <TableHead className="md:w-[280px]">Nombre</TableHead>
                 <TableHead className="hidden md:table-cell">Correo</TableHead>
                 <TableHead>Vencimiento</TableHead>
-                <TableHead>Estado</TableHead>
+                <TableHead className="w-[1px] whitespace-nowrap">Estado</TableHead>
                 <TableHead className="hidden text-right md:table-cell">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -170,7 +170,7 @@ export function MemberTable({
                       <TableCell className="font-medium">
                         <Link
                           href={`/miembros/${m.id}`}
-                          className="flex items-center gap-2.5 hover:underline"
+                          className="flex min-w-0 items-center gap-2.5 hover:underline"
                         >
                           <span
                             className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background"
@@ -178,7 +178,7 @@ export function MemberTable({
                           >
                             {initials(m.nombre)}
                           </span>
-                          <span className="font-semibold text-foreground">
+                          <span className="min-w-0 truncate font-semibold text-foreground">
                             {m.nombre}
                           </span>
                         </Link>
@@ -191,7 +191,7 @@ export function MemberTable({
                       </TableCell>
                       <TableCell>
                         <Badge
-                          className={`w-[140px] justify-center ${meta.className}`}
+                          className={`w-full justify-center md:w-[140px] ${meta.className}`}
                         >
                           <Icon className="size-3" aria-hidden="true" />
                           {meta.label}

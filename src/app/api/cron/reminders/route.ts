@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { miembros, recordatoriosEnviados } from "@/db/schema";
 import { dueRemindersForToday } from "@/lib/reminders";
-import { sendReminderEmail } from "@/lib/email";
+import { sendReminderEmail, sendAdminAlertEmail } from "@/lib/email";
 
 // Lee headers/DB en cada corrida → siempre dinámico.
 export const dynamic = "force-dynamic";
@@ -45,6 +45,8 @@ export async function GET(request: Request) {
   let enviados = 0;
   let fallidos = 0;
 
+  const adminEmail = process.env.ADMIN_EMAIL;
+
   for (const { miembro, tipo } of candidates) {
     const fechaVencimiento = miembro.fechaVencimiento.toISOString().slice(0, 10);
     const res = await sendReminderEmail({
@@ -70,6 +72,16 @@ export async function GET(request: Request) {
     } catch {
       // La constraint única (miembro_id, tipo, fecha_vencimiento) ya cubrió
       // este envío en una corrida concurrente/reintento: lo ignoramos.
+    }
+
+    // Aviso al admin (best-effort): no afecta al registro ni al conteo.
+    if (adminEmail) {
+      await sendAdminAlertEmail({
+        adminEmail,
+        nombreMiembro: miembro.nombre,
+        tipo,
+        fechaVencimiento,
+      });
     }
   }
 
