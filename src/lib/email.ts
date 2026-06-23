@@ -44,9 +44,9 @@ export async function sendReminderEmail({
 
 Te recordamos que tu membresía del gimnasio vence el ${fecha} (${cuando}).
 
-Acércate a renovarla para no perder el acceso a las clases.
+Por favor realiza el pago para renovar tu membresía y no perder el acceso a las clases.
 
-¡Nos vemos en el tatami!`;
+`;
 
   try {
     const transporter = nodemailer.createTransport({

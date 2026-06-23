@@ -11,9 +11,12 @@ import {
   Plus,
   Search,
   TriangleAlert,
+  X,
 } from "lucide-react";
 import type { MemberRow } from "@/app/(app)/actions/members";
+import type { MembershipStatus } from "@/lib/membership";
 import { STATUS_META, formatDate } from "@/lib/status-meta";
+import { STATUS_FILTER_LABELS } from "@/components/status-counters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,19 +48,34 @@ function initials(nombre: string): string {
   return (first + last).toUpperCase();
 }
 
-export function MemberTable({ members }: { members: MemberRow[] }) {
+export function MemberTable({
+  members,
+  statusFilter,
+  onClearStatusFilter,
+}: {
+  members: MemberRow[];
+  statusFilter: MembershipStatus | null;
+  onClearStatusFilter: () => void;
+}) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
+  const [prevStatusFilter, setPrevStatusFilter] = useState(statusFilter);
+
+  if (statusFilter !== prevStatusFilter) {
+    setPrevStatusFilter(statusFilter);
+    setPage(0);
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      (m) =>
-        m.nombre.toLowerCase().includes(q) ||
-        m.correo.toLowerCase().includes(q),
-    );
-  }, [members, query]);
+    return members.filter((m) => {
+      if (statusFilter && m.estado !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        m.nombre.toLowerCase().includes(q) || m.correo.toLowerCase().includes(q)
+      );
+    });
+  }, [members, query, statusFilter]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
@@ -91,6 +109,21 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
               className="pl-9"
             />
           </div>
+          {statusFilter && (
+            <Badge
+              className={`w-fit ${STATUS_META[statusFilter].className}`}
+            >
+              Filtrando por: {STATUS_FILTER_LABELS[statusFilter]}
+              <button
+                type="button"
+                onClick={onClearStatusFilter}
+                aria-label="Quitar filtro"
+                className="-mr-1 ml-0.5 rounded-full p-0.5 hover:bg-black/10"
+              >
+                <X className="size-3" aria-hidden="true" />
+              </button>
+            </Badge>
+          )}
         </div>
         <MemberForm
           trigger={
@@ -108,10 +141,10 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[280px]">Nombre</TableHead>
-                <TableHead>Correo</TableHead>
+                <TableHead className="hidden md:table-cell">Correo</TableHead>
                 <TableHead>Vencimiento</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="hidden text-right md:table-cell">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,7 +156,9 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
                   >
                     {members.length === 0
                       ? "Aún no hay personas registradas."
-                      : "Sin resultados para la búsqueda."}
+                      : statusFilter
+                        ? `No hay personas con estado "${STATUS_FILTER_LABELS[statusFilter]}".`
+                        : "Sin resultados para la búsqueda."}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -148,7 +183,7 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
                           </span>
                         </Link>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground md:table-cell">
                         {m.correo}
                       </TableCell>
                       <TableCell className="font-mono text-foreground">
@@ -162,7 +197,7 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
                           {meta.label}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <div className="flex justify-end gap-1">
                           <PaymentDialog
                             miembroId={m.id}
