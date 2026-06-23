@@ -45,7 +45,7 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
         <MemberForm trigger={<Button>Nueva persona</Button>} />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+      <div className="min-w-0 overflow-x-auto rounded-lg border border-zinc-200 bg-white">
         <Table>
           <TableHeader>
             <TableRow>
