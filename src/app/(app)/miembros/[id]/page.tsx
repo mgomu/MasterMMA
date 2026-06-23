@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, DollarSign } from "lucide-react";
+import { ArrowLeft, DollarSign, Check, Clock, AlertTriangle } from "lucide-react";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { miembros, pagos } from "@/db/schema";
@@ -8,6 +8,12 @@ import { membershipStatus } from "@/lib/membership";
 import { STATUS_META, formatDate } from "@/lib/status-meta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const STATUS_ICONS = {
+  check: Check,
+  clock: Clock,
+  alert: AlertTriangle,
+} as const;
 import {
   Card,
   CardContent,
@@ -56,6 +62,7 @@ export default async function MemberDetailPage({
     new Date(`${miembro.fechaVencimiento}T12:00:00Z`),
   );
   const meta = STATUS_META[estado];
+  const Icon = STATUS_ICONS[meta.icon];
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,7 +81,10 @@ export default async function MemberDetailPage({
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
             {miembro.nombre}
           </h1>
-          <Badge className={meta.className}>{meta.label}</Badge>
+          <Badge className={meta.className}>
+            <Icon className="size-3" aria-hidden="true" />
+            {meta.label}
+          </Badge>
         </div>
         <PaymentDialog
           miembroId={miembro.id}

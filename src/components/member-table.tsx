@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { DollarSign, Pencil, Trash2 } from "lucide-react";
+import { DollarSign, Pencil, Trash2, Check, Clock, AlertTriangle } from "lucide-react";
 import type { MemberRow } from "@/app/(app)/actions/members";
 import { STATUS_META, formatDate } from "@/lib/status-meta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -19,6 +20,12 @@ import {
 import { MemberForm } from "@/components/member-form";
 import { DeleteMemberDialog } from "@/components/delete-member-dialog";
 import { PaymentDialog } from "@/components/payment-dialog";
+
+const STATUS_ICONS = {
+  check: Check,
+  clock: Clock,
+  alert: AlertTriangle,
+} as const;
 
 export function MemberTable({ members }: { members: MemberRow[] }) {
   const [query, setQuery] = useState("");
@@ -36,12 +43,18 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <Input
-          placeholder="Buscar por nombre o correo..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="max-w-xs"
-        />
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="buscar" className="sr-only">
+            Buscar por nombre o correo
+          </Label>
+          <Input
+            id="buscar"
+            placeholder="Buscar por nombre o correo..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="max-w-xs"
+          />
+        </div>
         <MemberForm trigger={<Button>Nueva persona</Button>} />
       </div>
 
@@ -68,6 +81,7 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
             ) : (
               filtered.map((m) => {
                 const meta = STATUS_META[m.estado];
+                const Icon = STATUS_ICONS[meta.icon];
                 return (
                   <TableRow key={m.id}>
                     <TableCell className="font-medium">
@@ -81,7 +95,10 @@ export function MemberTable({ members }: { members: MemberRow[] }) {
                     <TableCell className="text-zinc-600">{m.correo}</TableCell>
                     <TableCell>{formatDate(m.fechaVencimiento)}</TableCell>
                     <TableCell>
-                      <Badge className={meta.className}>{meta.label}</Badge>
+                      <Badge className={meta.className}>
+                        <Icon className="size-3" aria-hidden="true" />
+                        {meta.label}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">

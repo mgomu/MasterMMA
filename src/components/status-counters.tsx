@@ -7,9 +7,9 @@ const COUNTERS: {
   label: string;
   className: string;
 }[] = [
-  { status: "activo", label: "Activos", className: "text-green-700" },
-  { status: "por_vencer", label: "Por vencer", className: "text-amber-700" },
-  { status: "vencido", label: "Vencidos", className: "text-red-700" },
+  { status: "activo", label: "Activos", className: "text-green-800" },
+  { status: "por_vencer", label: "Por vencer", className: "text-amber-800" },
+  { status: "vencido", label: "Vencidos", className: "text-red-800" },
 ];
 
 export function StatusCounters({ members }: { members: MemberRow[] }) {
