@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { todayISO } from "@/lib/utils";
 
 const initialState: MemberActionState = { ok: false };
 
@@ -137,7 +138,7 @@ export function MemberForm({
             </div>
           </div>
 
-          {isEdit && (
+          {isEdit ? (
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="fechaInicio">Inicio</Label>
@@ -157,6 +158,30 @@ export function MemberForm({
                   type="date"
                   required
                   defaultValue={member?.fechaVencimiento}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="fechaPago">Fecha de pago *</Label>
+                <Input
+                  id="fechaPago"
+                  name="fechaPago"
+                  type="date"
+                  required
+                  defaultValue={todayISO()}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="monto">Monto</Label>
+                <Input
+                  id="monto"
+                  name="monto"
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="Opcional"
                 />
               </div>
             </div>
