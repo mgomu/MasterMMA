@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { Calendar } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -36,19 +36,19 @@ export function PaymentDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [fechaPago, setFechaPago] = useState(todayISO());
-  const [state, formAction, pending] = useActionState(
-    registerPayment,
-    initialState,
-  );
+  const [pending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (state.ok) {
-      toast.success("Pago registrado");
-      setOpen(false);
-    } else if (state.error) {
-      toast.error(state.error);
-    }
-  }, [state]);
+  function handleAction(formData: FormData) {
+    startTransition(async () => {
+      const result = await registerPayment(initialState, formData);
+      if (result.ok) {
+        toast.success("Pago registrado");
+        setOpen(false);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    });
+  }
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -78,7 +78,7 @@ export function PaymentDialog({
 
         <form
           id="payment-form"
-          action={formAction}
+          action={handleAction}
           className="flex flex-col gap-4 px-7 pb-4"
         >
           <input type="hidden" name="miembroId" defaultValue={miembroId} />

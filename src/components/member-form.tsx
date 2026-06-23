@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   createMember,
@@ -32,19 +32,20 @@ export function MemberForm({
 }) {
   const isEdit = Boolean(member);
   const [open, setOpen] = useState(false);
-  const [state, formAction, pending] = useActionState(
-    isEdit ? updateMember : createMember,
-    initialState,
-  );
+  const [pending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (state.ok) {
-      toast.success(isEdit ? "Persona actualizada" : "Persona creada");
-      setOpen(false);
-    } else if (state.error) {
-      toast.error(state.error);
-    }
-  }, [state, isEdit]);
+  function handleAction(formData: FormData) {
+    const action = isEdit ? updateMember : createMember;
+    startTransition(async () => {
+      const result = await action(initialState, formData);
+      if (result.ok) {
+        toast.success(isEdit ? "Persona actualizada" : "Persona creada");
+        setOpen(false);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    });
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -66,7 +67,7 @@ export function MemberForm({
 
         <form
           id="member-form"
-          action={formAction}
+          action={handleAction}
           className="flex flex-col gap-4 px-7 pb-4"
         >
           {isEdit && <input type="hidden" name="id" defaultValue={member!.id} />}

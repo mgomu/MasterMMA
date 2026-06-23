@@ -1,4 +1,4 @@
-import { Check, Clock3, TrendingUp, TriangleAlert } from "lucide-react";
+import { Check, Clock3, TriangleAlert } from "lucide-react";
 import type { MemberRow } from "@/app/(app)/actions/members";
 import type { MembershipStatus } from "@/lib/membership";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,37 +42,31 @@ export function StatusCounters({ members }: { members: MemberRow[] }) {
   for (const m of members) totals[m.estado] += 1;
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-3 gap-2 sm:gap-4">
       {COUNTERS.map((c) => {
         const Icon = c.icon;
         return (
-          <Card key={c.status} className="[--card-spacing:24px]">
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">
+          <Card
+            key={c.status}
+            className="[--card-spacing:12px] sm:[--card-spacing:24px]"
+          >
+            <CardContent className="flex flex-col gap-1 sm:gap-3">
+              <div className="flex items-center justify-between gap-1">
+                <p className="truncate text-xs font-medium text-muted-foreground sm:text-sm">
                   {c.label}
                 </p>
                 <span
-                  className={`flex size-8 items-center justify-center rounded-full ${c.chipBg}`}
+                  className={`flex size-6 shrink-0 items-center justify-center rounded-full sm:size-8 ${c.chipBg}`}
                   aria-hidden="true"
                 >
-                  <Icon className={`size-4 ${c.valueClass}`} />
+                  <Icon className={`size-3 sm:size-4 ${c.valueClass}`} />
                 </span>
               </div>
               <p
-                className={`font-mono text-5xl font-bold tracking-tight ${c.valueClass}`}
+                className={`font-mono text-2xl font-bold tracking-tight sm:text-5xl ${c.valueClass}`}
               >
                 {totals[c.status]}
               </p>
-              <div className="flex items-center gap-1.5">
-                <TrendingUp
-                  className={`size-3 ${c.valueClass}`}
-                  aria-hidden="true"
-                />
-                <span className="text-xs text-muted-foreground">
-                  vs. mes anterior
-                </span>
-              </div>
             </CardContent>
           </Card>
         );

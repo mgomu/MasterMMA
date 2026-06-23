@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // macOS AppleDouble resource-fork files (created on external volumes);
+    // not real source and break the parser with "Invalid character".
+    "**/._*",
   ]),
 ]);
 
