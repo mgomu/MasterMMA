@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import type { ReminderType } from "./membership";
 
 const DIAS: Record<ReminderType, number> = { "7d": 7, "3d": 3, "1d": 1 };
@@ -26,10 +26,11 @@ export async function sendReminderEmail({
   tipo,
   fechaVencimiento,
 }: SendReminderArgs): Promise<SendResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  if (!apiKey || !from) {
-    return { ok: false, error: "Faltan RESEND_API_KEY o EMAIL_FROM." };
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM;
+  if (!user || !pass || !from) {
+    return { ok: false, error: "Faltan SMTP_USER, SMTP_PASS o SMTP_FROM." };
   }
 
   const dias = DIAS[tipo];
@@ -48,9 +49,13 @@ Acércate a renovarla para no perder el acceso a las clases.
 ¡Nos vemos en el tatami!`;
 
   try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({ from, to, subject, text });
-    if (error) return { ok: false, error: error.message };
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+    });
+    await transporter.sendMail({ from, to, subject, text });
     return { ok: true };
   } catch (e) {
     return {
