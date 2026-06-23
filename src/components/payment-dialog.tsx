@@ -18,12 +18,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { todayISO } from "@/lib/utils";
 
 const initialState: PaymentActionState = { ok: false };
-
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export function PaymentDialog({
   miembroId,

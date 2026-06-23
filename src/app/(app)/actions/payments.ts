@@ -6,14 +6,10 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { miembros, pagos } from "@/db/schema";
 import { paymentSchema } from "@/lib/validators";
+import { todayISO } from "@/lib/utils";
 import { calcDueDate } from "@/lib/membership";
 
 export type PaymentActionState = { ok: boolean; error?: string };
-
-/** Fecha de hoy como `YYYY-MM-DD` (las columnas `date` se guardan como string). */
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export async function registerPayment(
   _prev: PaymentActionState,

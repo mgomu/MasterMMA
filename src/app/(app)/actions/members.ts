@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { miembros } from "@/db/schema";
 import { memberSchema } from "@/lib/validators";
+import { todayISO } from "@/lib/utils";
 import type { MembershipStatus } from "@/lib/membership";
 
 export type MemberActionState = { ok: boolean; error?: string };
@@ -23,11 +24,6 @@ export type MemberRow = {
   fechaVencimiento: string;
   estado: MembershipStatus;
 };
-
-/** Fecha de hoy como `YYYY-MM-DD` (las columnas `date` se guardan como string). */
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 /** Convierte cadena vacía en `null` para columnas opcionales. */
 function nullable(value: FormDataEntryValue | null): string | null {
