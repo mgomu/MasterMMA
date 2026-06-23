@@ -29,10 +29,15 @@ export default async function DashboardPage() {
   }));
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-        Personas
-      </h1>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-1.5">
+        <p className="font-mono text-[11px] font-semibold tracking-[0.15em] text-primary">
+          MEMBRESÍAS
+        </p>
+        <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground">
+          Personas
+        </h1>
+      </div>
       <StatusCounters members={members} />
       <MemberTable members={members} />
     </div>

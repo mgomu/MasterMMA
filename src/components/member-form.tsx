@@ -49,22 +49,37 @@ export function MemberForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar persona" : "Nueva persona"}</DialogTitle>
+          <p className="font-mono text-[11px] font-semibold tracking-[0.15em] text-primary">
+            {isEdit ? "EDITAR PERSONA" : "NUEVA PERSONA"}
+          </p>
+          <DialogTitle>
+            {isEdit ? "Editar persona" : "Registrar persona"}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
               ? "Actualiza los datos y la suscripción."
-              : "Registra una nueva persona en el gimnasio."}
+              : "Añade una nueva persona al gimnasio. Los campos marcados con * son obligatorios."}
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction} className="flex flex-col gap-4">
+        <form
+          id="member-form"
+          action={formAction}
+          className="flex flex-col gap-4 px-7 pb-4"
+        >
           {isEdit && <input type="hidden" name="id" defaultValue={member!.id} />}
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="nombre">Nombre *</Label>
-            <Input id="nombre" name="nombre" required defaultValue={member?.nombre} />
+            <Input
+              id="nombre"
+              name="nombre"
+              required
+              placeholder="Nombre completo"
+              defaultValue={member?.nombre}
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -74,6 +89,7 @@ export function MemberForm({
               name="correo"
               type="email"
               required
+              placeholder="ejemplo@correo.com"
               defaultValue={member?.correo}
             />
           </div>
@@ -81,13 +97,19 @@ export function MemberForm({
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="telefono">Teléfono</Label>
-              <Input id="telefono" name="telefono" defaultValue={member?.telefono ?? ""} />
+              <Input
+                id="telefono"
+                name="telefono"
+                placeholder="+57 300 000 0000"
+                defaultValue={member?.telefono ?? ""}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="documento">Documento</Label>
               <Input
                 id="documento"
                 name="documento"
+                placeholder="1.000.000.000"
                 defaultValue={member?.documento ?? ""}
               />
             </div>
@@ -99,6 +121,7 @@ export function MemberForm({
               <Input
                 id="contactoEmergencia"
                 name="contactoEmergencia"
+                placeholder="Nombre y teléfono"
                 defaultValue={member?.contactoEmergencia ?? ""}
               />
             </div>
@@ -137,13 +160,21 @@ export function MemberForm({
               </div>
             </div>
           )}
-
-          <DialogFooter>
-            <Button type="submit" disabled={pending}>
-              {pending ? "Guardando..." : "Guardar"}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={pending}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit" form="member-form" disabled={pending}>
+            {pending ? "Guardando..." : isEdit ? "Guardar cambios" : "Guardar persona"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
