@@ -16,12 +16,12 @@ export function LoginForm() {
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">Correo</Label>
+        <Label htmlFor="email">Usuario</Label>
         <Input
           id="email"
           name="email"
-          type="email"
-          autoComplete="email"
+          type="text"
+          autoComplete="username"
           required
           defaultValue={state.email}
           className="h-11"
