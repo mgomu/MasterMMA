@@ -173,7 +173,7 @@ export function MemberTable({
                           className="flex min-w-0 items-center gap-2.5 hover:underline"
                         >
                           <span
-                            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background"
+                            className="hidden md:flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background"
                             aria-hidden="true"
                           >
                             {initials(m.nombre)}
